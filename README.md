@@ -1,69 +1,100 @@
-# 🏥 C.A.L.M. (Critical Agent Logic Module)
+C.A.L.M. is an autonomous Hospital Orchestration System designed to bridge the silos between Emergency, General Wards, Pharmacy, and Administration.
 
-> **Student Clash 2025** > **Category:**Tech
-## 📖 Overview
-**C.A.L.M.** is an autonomous **Clinical Decision Support System** designed to restore order to the chaotic environment of the Intensive Care Unit (ICU).
+In a modern hospital, critical information gets trapped in departmental bubbles. An ER doctor might not know a patient in General Ward B is having a reaction to a drug administered hours ago in Surgery. C.A.L.M. solves this by employing a Level 3 Multi-Agent System  that acts as a central nervous system, negotiating data across the entire facility to surface only Critical Logic.
 
-ICU clinicians suffer from severe **Alarm Fatigue**, caused by thousands of daily alerts from uncoordinated devices. **C.A.L.M.** solves this not by silencing sensors, but by employing a "Digital Team" of specialized AI agents that negotiate in real-time to filter noise and surface only **Critical Logic**.
+🚀 The Problem
+Operational Fragmentation: Critical patient data is siloed. The ER, ICU, and General Wards often operate as separate islands, leading to delayed interventions.
 
-## 🚀 The Problem
-* **Cognitive Overload:** Clinicians must synthesize data from 10+ disconnected screens.
-* **Alarm Fatigue:** 72-99% of clinical alarms are false or non-actionable, leading to desensitization.
-* **Context Blindness:** Standard monitors scream "Low Heart Rate" even if the patient is a sleeping athlete; they lack the logic to understand *why*.
+Alert Overload & Desensitization: Across a whole hospital, thousands of alerts trigger hourly. Staff cannot distinguish between a "low battery" warning and a "cardiac event" without manual review.
 
-## 💡 The Solution: C.A.L.M. Architecture
-We utilize a **Level 3 Multi-Agent Approach** to separate detection from reasoning. The system does not just *react*; it *thinks* before it notifies.
+Medication Reconciliation Errors: 40% of medication errors occur during patient transfer (e.g., moving from Surgery to Recovery). Standard systems lack the "memory" to track active ingredients across these transitions.
 
-### The Agentic Workflow
-The module consists of three autonomous agents working in a loop:
+💡 The Solution: C.A.L.M. Architecture
+We utilize a Multi-Agent Approach  to separate hospital-wide detection, pharmacological safety, and cross-departmental reasoning. The system creates a "digital team"  that thinks before it broadcasts.
 
-1.  **The Sentinel (Input Agent)**
-    * *Function:* Pure data ingestion (Vitals, Labs, IoT).
-    * *Logic:* High sensitivity. If a number is out of range, it flags an **"Anomaly Candidate"**.
-    * *Motto:* "Miss nothing."
 
-2.  **The Historian (Context Agent)**
-    * *Function:* Deep EMR analysis (Patient History, Meds, Notes).
-    * *Logic:* It validates the Sentinel's candidate against the patient's specific profile.
-    * *Motto:* "Check the context."
-    * *Capability:* Can issue an **"Objection"** (e.g., *Objecting to Low BP alert because patient was just administered a vasodilator*).
+The Agentic Workflow
+The module consists of four autonomous agents working in a collaborative loop to handle specific roles:
 
-3.  **The Triage Officer (Output Agent)**
-    * *Function:* Decision & Communication.
-    * *Logic:* Weighs the Sentinel's fear against the Historian's facts.
-    * *Action:* Autonomously decides the **Alert Level**:
-        * 🔴 **Code Red:** Audible Alarm (Immediate Intervention).
-        * 🟡 **Yellow Log:** Silent update to the dashboard (Watchlist).
-        * 🟢 **Suppress:** False alarm dismissed with a log entry.
+1. The Sentinel (The Watchtower Agent)
+Role: Global Data Ingestion (Vitals, IoT, Bed Status, Lab Results).
 
----
+Logic: Monitors the entire hospital grid. It possesses high sensitivity but low context. If a patient's vitals spike in any ward, or if a lab result is critical, it flags a "Hospital Event Candidate."
 
-## ⚙️ Technical Implementation
+Motto: "See everything, everywhere."
 
-### Prerequisites
-* Python 3.8+
-* OpenAI API Key (or compatible LLM endpoint)
+2. The Historian (The Context Engine)
+Role: Deep EMR & Transfer Analysis.
 
-### Installation
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/yourusername/calm-agent.git](https://github.com/yourusername/calm-agent.git)
-    cd calm-agent
-    ```
+Logic: Accesses the full longitudinal patient record. It checks: "Is this patient post-op?" "Do they have a history of chronic arrhythmia?" "Did they just transfer from the ER?"
 
-2.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *(Includes `openai`, `python-dotenv`, `pydantic`)*
+Goal: It validates if the Sentinel's alert is actually abnormal for this specific patient's current journey.
 
-3.  **Security Setup:**
-    Create a `.env` file in the root directory. **Do not hardcode keys.**
-    ```env
-    OPENAI_API_KEY=sk-your-secret-key-here
-    ```
+Motto: "Know the patient's journey."
 
-### How to Run
-Start the logic engine simulation:
-```bash
+3. The Pharmacist (The Safety Net)
+Role: Cross-Departmental Medication Tracking.
+
+Logic: Analyzes the Drug Timeline across transfers. It looks for "stacking" effects—e.g., a sedative given in the ER interacting with a painkiller given 4 hours later in the General Ward.
+
+Action: Communicates with the Triage Officer if a sudden vital sign change correlates with a medication peak time, preventing false "sepsis" alerts that are actually drug side effects.
+
+Motto: "Respect the chemistry."
+
+4. The Triage Officer (The Command Center / "Agent C")
+
+Role: Decision, Consensus & Communication.
+
+Logic: Acts as the Hospital Chief of Staff. It facilitates the negotiation:
+
+Sentinel: "Patient in Room 302 has dropping BP."
+
+Pharmacist: "Wait, they received a beta-blocker 30 mins ago."
+
+Historian: "Patient is also marked as 'Sleeping' in the night shift log."
+
+Action: Autonomously distributes the alert to the correct department:
+
+🔴 Code Red: Immediate Pager Alert to Floor Nurse (Life-threatening/Unexplained).
+
+🟡 Yellow Consult: Silent notification to the resident doctor's tablet (Medication adjustment needed).
+
+🟢 Log Only: Suppress alert (Expected physiological response to treatment).
+
+⚙️ Technical Implementation
+Prerequisites
+Python 3.8+
+
+OpenAI API Key (or compatible LLM endpoint)
+
+Installation
+Clone the repository:
+
+Bash
+
+git clone https://github.com/yourusername/calm-agent.git
+cd calm-agent
+Install dependencies:
+
+Bash
+
+pip install -r requirements.txt
+
+(Includes openai, python-dotenv, pydantic) 
+
+Security Setup: Create a .env file in the root directory. Do not hardcode keys.
+
+Code snippet
+
+OPENAI_API_KEY=sk-your-secret-key-here
+How to Run
+Start the hospital logic engine simulation with the full agent team:
+
+Bash
+
 python main.py
+Note on Student Clash Requirements:
+
+This project fulfills the Level 3 Multi-Agent Approach by demonstrating agents "reasoning or negotiating with each other".
+
+The pharmacist agent adds the required complexity of specific knowledge domains interacting.
