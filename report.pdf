@@ -1,0 +1,114 @@
+Here is the formatted version of your report, optimized for a GitHub repository (Markdown).
+
+**Pro Tip:** Since you want to convert this to a PDF, I have added a **Mermaid.js** diagram in the "Communication Protocol" section. GitHub renders these automatically, and most Markdown-to-PDF converters (like the one in VS Code) will turn it into a professional-looking chart.
+
+-----
+
+# 🏥 C.A.L.M. System - Technical Report
+
+> **Event:** Reply Student Tech Clash 2025
+> **Track:** Tech Case Study
+> **Submission Level:** Level 3 (Multi-Agent Approach)
+
+-----
+
+## 1\. Multi-Agent Architecture Description
+
+The **C.A.L.M. (Critical Agent Logic Module)** system utilizes a **Multi-Agent Orchestration pattern** to solve the critical problem of "Alarm Fatigue" in Intensive Care Units (ICU). Instead of a monolithic AI trying to process every data point, the system delegates responsibilities to a "Digital Team" of four specialized agents.
+
+### The Digital Team (Roles & Logic)
+
+#### 🚑 1. The Sentinel (Observer)
+
+  * **Code Implementation:** `SentinelAgent` in `agents.py`
+  * **Role:** Real-time stream monitoring.
+  * **Logic:** Evaluates raw vital signs against standard medical thresholds (e.g., `HR < 50` or `HR > 120`). It operates with **zero context** about the patient's history; it only sees the current metric.
+  * **Output:** Flags an event as `NORMAL` or `ANOMALY` with a specific severity level.
+
+#### 📚 2. The Historian (Context Engine)
+
+  * **Code Implementation:** `HistorianAgent` in `agents.py`
+  * **Role:** Longitudinal record analysis.
+  * **Logic:** Upon receiving a Sentinel alert, it queries the patient's **EMR (Electronic Medical Record)**. It checks if the anomaly is explained by chronic conditions (e.g., *"Patient is an athlete"*) or recent nurse notes (e.g., *"Patient is sleeping"*).
+  * **Output:** A verdict of `CONFIRM` (the alert is valid) or `OBJECT` (the alert is safe/expected).
+
+#### 💊 3. The Pharmacist (Safety Net)
+
+  * **Code Implementation:** `PharmacistAgent` in `agents.py`
+  * **Role:** Drug interaction & side-effect checking.
+  * **Logic:** Analyzes the patient's active medication list against the flagged vital sign. It identifies if the symptom (e.g., *Low Heart Rate*) is a known side effect of an active drug (e.g., *"Atenolol"*).
+  * **Output:** A boolean `interaction_detected` flag.
+
+#### 👮 4. The Triage Officer (Command Center)
+
+  * **Code Implementation:** `TriageAgent` in `agents.py`
+  * **Role:** Consensus and Decision Making.
+  * **Logic:** Acts as the "Manager." It receives conflicting reports from the Sentinel, Historian, and Pharmacist and applies a hierarchical decision tree:
+      * If **Life Threatening** → **CODE RED**
+      * If **Pharmacist** detects side effect → **YELLOW LOG** (Suppress Alarm)
+      * If **Historian** provides valid context → **YELLOW LOG** (Suppress Alarm)
+  * **Goal:** To filter out noise and only escalate true emergencies.
+
+-----
+
+## 2\. Communication Protocol
+
+The agents communicate via a synchronous JSON-passing workflow orchestrated in `main.py`.
+
+1.  **Trigger:** The loop iterates through `events_stream` (simulating IoT devices).
+2.  **Broadcast:** If the **Sentinel** detects an anomaly, the specific `event` and `patient_data` are passed **in parallel** to the Historian and Pharmacist.
+3.  **Negotiation:**
+      * The **Sentinel** passes a `Severity` score.
+      * The **Pharmacist** injects specific domain knowledge (*"This is a drug effect"*).
+      * The **Historian** injects context (*"This is their baseline"*).
+4.  **Synthesis:** The **Triage Officer** prompts an LLM with all three inputs combined to generate the final `message_to_doctor`.
+
+### Interaction Flowchart
+
+```mermaid
+sequenceDiagram
+    participant IoT as IoT Stream
+    participant S as Sentinel
+    participant H as Historian
+    participant P as Pharmacist
+    participant T as Triage Officer
+    
+    IoT->>S: New Vital Sign (HR: 42)
+    S->>S: Check Thresholds
+    S->>H: Broadcast Alert (Severity: High)
+    S->>P: Broadcast Alert (Severity: High)
+    
+    par Context Check
+        H->>H: Check Patient EMR
+        H-->>T: VERDICT: Object (Athlete)
+    and Safety Check
+        P->>P: Check Drug Interaction
+        P-->>T: INTERACTION: True (Beta-Blockers)
+    end
+    
+    T->>T: Synthesize Reports
+    T->>T: Apply Logic Hierarchy
+    T-->>IoT: Final Decision: YELLOW LOG (Suppress)
+```
+
+-----
+
+## 3\. Evaluation of Multi-Agent Benefit
+
+Transitioning from a single agent to this Level 3 Multi-Agent architecture provided three critical benefits:
+
+### A. Prevention of Hallucinations (Accuracy)
+
+In a single-agent setup, the AI often tries to "justify" the data to please the user. By separating the **Detector** (Sentinel) from the **Context Provider** (Historian), we force the system to cross-reference facts before speaking.
+
+> **Evidence:** In **Scenario 2 (P-808)**, the Sentinel flagged a dangerous HR of 42. A standard system would trigger a *Code Blue*. Our Historian Agent correctly identified the patient as a "Competitive Swimmer," downgrading the alert automatically.
+
+### B. Domain Specialization (Safety)
+
+General-purpose LLMs often miss specific drug interactions. By creating a dedicated **Pharmacist Agent** prompted specifically to look for side effects, we successfully catch "False Alarms" caused by medication (e.g., Beta-blockers reducing heart rate).
+
+> **Impact:** This drastically reduces the cognitive load on doctors by filtering out physiological responses to treatment that look like emergencies.
+
+### C. Scalability
+
+The modular design allows us to add new agents without breaking the core logic. If we needed to add a **"Lab Results Analyzer"** or an **"Insurance Auth Checker,"** we would simply instantiate a new class in `agents.py` and pass its output to the Triage Officer, preserving the system's stability.
